@@ -20,31 +20,30 @@ This skill reads Korean Hangul Word Processor files (.hwp, .hwpx) and prepares t
 
 ## Workflow
 
+> **CRITICAL**: NEVER run `uvx`, `pipx`, or `pip` commands directly. ALWAYS use the complete bash script below which automatically detects and uses the correct tool.
+
 ### 1. Verify File Exists
 
 ```bash
 ls -la "[file-path]"
 ```
 
-### 2. Extract Content
+### 2. Detect and Extract Content
+
+**Run this EXACT script** (do not modify or run individual commands):
 
 ```bash
-# Preferred (no installation needed)
-uvx pyhwp2md "[file-path]"
-
-# Alternatives if uvx is not available
-pipx run pyhwp2md "[file-path]"
-pip install pyhwp2md && pyhwp2md "[file-path]"
+TOOL=$(command -v uvx >/dev/null 2>&1 && echo "uvx" || (command -v pipx >/dev/null 2>&1 && echo "pipx" || (command -v pip >/dev/null 2>&1 && echo "pip" || echo "none"))) && case $TOOL in uvx) uvx pyhwp2md "[file-path]" ;; pipx) pipx run pyhwp2md "[file-path]" ;; pip) pip install -q pyhwp2md && pyhwp2md "[file-path]" ;; *) echo "Error: No Python package runner found" ;; esac
 ```
 
 ### 3. Handle Output Based on Size
 
 **If content fits in context**: Use the stdout output directly to respond to user queries.
 
-**If content is too large for context**: Save to a temporary file and reference it:
+**If content is too large for context**: Save to a temporary file using this script:
 
 ```bash
-uvx pyhwp2md "[file-path]" -o /tmp/extracted_content.md
+TOOL=$(command -v uvx >/dev/null 2>&1 && echo "uvx" || (command -v pipx >/dev/null 2>&1 && echo "pipx" || (command -v pip >/dev/null 2>&1 && echo "pip" || echo "none"))) && case $TOOL in uvx) uvx pyhwp2md "[file-path]" -o /tmp/extracted_content.md ;; pipx) pipx run pyhwp2md "[file-path]" -o /tmp/extracted_content.md ;; pip) pyhwp2md "[file-path]" -o /tmp/extracted_content.md ;; esac
 ```
 
 Then read the file in chunks as needed to answer user questions.

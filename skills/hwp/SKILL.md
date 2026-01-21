@@ -9,54 +9,14 @@ user-invocable: true
 
 # HWP/HWPX Document Reader
 
-This skill extracts text content from Korean Hangul Word Processor files (.hwp, .hwpx).
+This skill reads Korean Hangul Word Processor files (.hwp, .hwpx) and prepares to respond based on the content using [pyhwp2md](https://github.com/pitzcarraldo/pyhwp2md).
 
 ## Supported Formats
 
-| Format | Extension | Library | Description |
-|--------|-----------|---------|-------------|
-| Modern | `.hwpx` | python-hwpx | XML-based format (Hangul 2014+) |
-| Legacy | `.hwp` | pyhwp | Binary OLE2 format (Hangul 5.x) |
-
-## Quick Start
-
-To read an HWP/HWPX file, run the reader script:
-
-```bash
-python3 scripts/hwp_reader.py "[file-path]"
-```
-
-The script automatically:
-1. Detects file format by extension
-2. Installs required libraries if missing
-3. Extracts text with table-aware formatting
-4. Falls back to HTML extraction for complex documents
-
-## Scripts
-
-### hwp_reader.py
-
-Main entry point for reading HWP/HWPX files. Read the complete script before using:
-
-```bash
-cat scripts/hwp_reader.py
-```
-
-**Key functions:**
-- `read_hwpx()`: Extract text from modern HWPX files
-- `read_hwp()`: Extract text from legacy HWP files with automatic fallback
-- `install_package()`: Auto-install missing dependencies
-
-### html_extractor.py
-
-Utility for extracting text from HWP-converted HTML. Provides table-aware parsing:
-
-```bash
-cat scripts/html_extractor.py
-```
-
-**Key class:**
-- `HwpHtmlExtractor`: HTMLParser subclass that preserves table structure
+| Format | Extension | Description |
+|--------|-----------|-------------|
+| HWP | `.hwp` | Binary format (HWP 5.0+) |
+| HWPX | `.hwpx` | XML-based format (Hangul 2014+) |
 
 ## Workflow
 
@@ -66,75 +26,43 @@ cat scripts/html_extractor.py
 ls -la "[file-path]"
 ```
 
-### 2. Run Reader Script
+### 2. Extract Content
 
 ```bash
-cd [skill-directory]
-python3 scripts/hwp_reader.py "[file-path]"
+# Preferred (no installation needed)
+uvx pyhwp2md "[file-path]"
+
+# Alternatives if uvx is not available
+pipx run pyhwp2md "[file-path]"
+pip install pyhwp2md && pyhwp2md "[file-path]"
 ```
 
-### 3. Handle Missing Dependencies
+### 3. Handle Output Based on Size
 
-If libraries are not installed, the script will attempt automatic installation:
+**If content fits in context**: Use the stdout output directly to respond to user queries.
+
+**If content is too large for context**: Save to a temporary file and reference it:
 
 ```bash
-# For HWPX files
-pip install python-hwpx
-
-# For HWP files
-pip install six pyhwp
+uvx pyhwp2md "[file-path]" -o /tmp/extracted_content.md
 ```
 
-On managed environments, use:
-```bash
-pip install --break-system-packages [package]
-```
-
-## Output Format
-
-```
-============================================================
-File: /path/to/document.hwp
-============================================================
-
-[Extracted text content]
-
-TABLE:
-Column 1 | Column 2 | Column 3
-Value 1 | Value 2 | Value 3
-
-[More text...]
-
-============================================================
-HWP file processing complete
-============================================================
-```
+Then read the file in chunks as needed to answer user questions.
 
 ## Technical Requirements
 
-| Requirement | Version |
-|-------------|---------|
-| Python | 3.7+ |
-| python-hwpx | Latest (for .hwpx) |
-| pyhwp | Latest (for .hwp) |
+| Requirement | Version | Note |
+|-------------|---------|------|
+| Python | 3.10+ | Required |
+| uv/pipx/pip | Latest | Any one of these |
 
 ## Limitations
 
-- **Text-only**: Images and embedded objects are not extracted
-- **Formatting loss**: Styles, colors, and fonts are not preserved
-- **Tables**: Converted to pipe-separated text format
-- **Comments**: May not be fully extracted
-
-## Error Handling
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| File not found | Invalid path | Verify file path |
-| Not a zip file | Using python-hwpx on .hwp | Script auto-detects format |
-| No module named 'hwp5' | pyhwp not installed | Script auto-installs |
-| externally-managed-environment | System Python | Use --break-system-packages |
+- **Images**: Not yet supported
+- **Links**: Partial support
+- **Formatting**: Styles, colors, and fonts are not preserved
 
 ## References
 
-- [pyhwp GitHub](https://github.com/mete0r/pyhwp)
-- [python-hwpx PyPI](https://pypi.org/project/python-hwpx/)
+- [pyhwp2md GitHub](https://github.com/pitzcarraldo/pyhwp2md)
+- [pyhwp2md PyPI](https://pypi.org/project/pyhwp2md/)

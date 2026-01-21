@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: GitHub PR URL을 분석하여 unresolved discussion들을 처리합니다. 사용자가 GitHub PR 링크(github.com/.../pull/...)를 제공하거나 "PR 리뷰", "review PR", "리뷰 처리" 등을 언급할 때 활성화
+description: This skill processes unresolved GitHub PR review discussions. Activated when the user provides a GitHub PR link (github.com/.../pull/...) or mentions "PR review", "review PR", "process review comments", etc.
 argument-hint: [pr-url]
 user-invocable: true
 ---

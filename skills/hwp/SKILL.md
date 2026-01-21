@@ -1,6 +1,6 @@
 ---
 name: hwp
-description: This skill should be used when the user wants to view contents of HWP/HWPX files (한글 문서), mentions ".hwp" or ".hwpx" file paths, asks to "read hwp", "read hwpx", "open hwp", "open hwpx", "hwp 파일 열기", "hwpx 파일 열기", "한글 문서 읽기", or needs to extract text from Korean word processor documents.
+description: This skill should be used when the user wants to view contents of HWP/HWPX files (Korean word processor documents), mentions ".hwp" or ".hwpx" file paths, asks to "read hwp", "read hwpx", "open hwp", "open hwpx", or needs to extract text from Korean word processor documents.
 argument-hint: [file-path]
 metadata:
     short-description: Extract and display HWP/HWPX document contents

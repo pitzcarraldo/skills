@@ -35,8 +35,6 @@ This skill automatically analyzes staged Git changes and creates commits followi
 [optional body explaining WHY the change was made]
 
 [optional footer(s)]
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 **Format Rules:**
@@ -44,7 +42,11 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 - **Scope**: Optional, component/module name in parentheses
 - **Description**: Required, imperative mood, lowercase, no period, under 72 chars
 - **Body**: Optional, wrapped at 72 characters, explains motivation
-- **Footer**: Co-Authored-By is required
+- **Footer**: Optional, for references or metadata
+
+**Author Policy:**
+- **Do NOT add Co-Authored-By**: Only the current user should be the author
+- Claude assistance should not be credited in commit metadata
 
 ## Workflow
 
@@ -127,8 +129,6 @@ Stage files with:
 ```bash
 git commit -m "$(cat <<'EOF'
 <type>(<scope>): <description>
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -142,8 +142,6 @@ git commit -m "$(cat <<'EOF'
 Detailed explanation of WHY this change was made.
 Wrap at 72 characters for readability.
 Use multiple paragraphs if needed.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -193,8 +191,6 @@ Creating commit with message:
 <type>(<scope>): <description>
 
 [body]
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✓ Commit created: [hash]
@@ -213,8 +209,6 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 **Generated commit:**
 ```
 feat(auth): add password reset functionality
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Example 2: Bug Fix with Context
@@ -232,8 +226,6 @@ fix(api): handle null values in user profile endpoint
 
 Previously the endpoint would crash when users had incomplete profiles.
 Added fallback to default profile object to prevent null reference errors.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Example 3: Documentation Update
@@ -248,8 +240,6 @@ M README.md
 **Generated commit:**
 ```
 docs: add installation instructions to readme
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Example 4: Refactoring
@@ -267,8 +257,6 @@ refactor(utils): extract validation logic into separate module
 
 Moved reusable validators to dedicated module for better code organization
 and to enable reuse across multiple components.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Example 5: Multiple File Changes
@@ -283,8 +271,6 @@ M src/styles/global.css
 **Generated commit:**
 ```
 style: apply consistent formatting to component files
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ## Technical Requirements
@@ -308,8 +294,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 3. **Use scope consistently** within a project
 4. **Add body for complex changes** to explain reasoning
 5. **Group related changes** in a single commit when logical
-6. **Never skip the Co-Authored-By footer**
-7. **Review the generated message** before confirming
+6. **Review the generated message** before confirming
 
 ## Limitations
 
@@ -370,7 +355,7 @@ Include issue references in body or footer (e.g., Fixes #123 or Closes #456).
 ## Notes
 
 - Commits are created locally only; use separate command to push
-- The Co-Authored-By footer credits both the user and Claude
+- Only the current user is credited as the author (no Co-Authored-By)
 - Scope is optional but recommended for larger projects
 - Description must use imperative mood (not past tense)
 - Multi-line descriptions are not allowed (use body instead)

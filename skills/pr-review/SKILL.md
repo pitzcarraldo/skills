@@ -434,6 +434,163 @@ Resolved Discussions:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
+### 7. 반복 처리 루프
+
+수정사항(Valid Feedback)이 있는 경우 모든 discussion이 해결될 때까지 다음 사이클을 반복합니다:
+
+#### 7.1 코드 수정 및 Push
+
+**Todo 항목에 따라 코드 수정 후 push:**
+
+```bash
+# 변경사항 커밋
+git add .
+git commit -m "fix: address PR review feedback"
+
+# Push
+git push
+```
+
+#### 7.2 CI Check 대기
+
+**PR의 모든 check가 완료될 때까지 대기:**
+
+```bash
+# Check 상태 모니터링 (완료될 때까지 polling)
+gh pr checks "$pr_number" -R "$owner/$repo" --watch
+```
+
+**Check 상태 확인:**
+```bash
+gh pr checks "$pr_number" -R "$owner/$repo"
+```
+
+**예상 출력:**
+```
+Some checks are still pending
+0 failing, 1 pending, 0 passing, and 0 skipped checks
+
+build   In progress  https://github.com/...
+```
+
+**Check 완료 대기 로직:**
+- `--watch` 플래그로 실시간 모니터링
+- 모든 check가 pass/fail/skipped 상태가 될 때까지 대기
+- Check 실패 시 사용자에게 알림 후 계속 진행
+
+#### 7.3 새로운 Discussion 확인
+
+**Check 완료 후 새로운 unresolved discussion 조회:**
+
+```bash
+# 3단계의 GraphQL 쿼리 재실행
+gh api graphql -f query='
+  query($owner: String!, $repo: String!, $pr: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $pr) {
+        reviewThreads(first: 100) {
+          nodes {
+            id
+            isResolved
+            isOutdated
+            path
+            line
+            comments(first: 10) {
+              nodes {
+                id
+                body
+                author { login }
+                createdAt
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+' -f owner="$owner" -f repo="$repo" -F pr="$pr_number"
+```
+
+**새 discussion 발견 시:**
+- 4단계(분석)부터 다시 시작
+- 새로운 discussion 처리
+
+#### 7.4 종료 조건
+
+**루프 종료 조건:**
+- Unresolved discussion이 0개
+- 모든 CI check 통과
+
+**최종 완료 메시지:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ PR Review 처리 완료
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PR: [PR Title] (#[number])
+Repository: [owner]/[repo]
+
+처리 사이클: [N]회
+총 처리 discussion: [X]개
+CI Check: ✓ 모두 통과
+
+모든 review feedback이 처리되었습니다.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+#### 7.5 루프 흐름도
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    시작                                  │
+└────────────────────────┬────────────────────────────────┘
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│          Unresolved discussion 조회                      │
+└────────────────────────┬────────────────────────────────┘
+                         ▼
+              ┌─────────────────────┐
+              │ discussion 있음?    │
+              └──────────┬──────────┘
+                   │           │
+                  Yes          No
+                   │           │
+                   ▼           ▼
+┌──────────────────────┐  ┌─────────────────────────┐
+│ 분석 및 분류 (4단계)  │  │     ✓ 처리 완료         │
+└──────────┬───────────┘  │     루프 종료           │
+           ▼              └─────────────────────────┘
+┌──────────────────────┐
+│ 처리 및 응답 (5단계)  │
+│ - Valid: 수정        │
+│ - Invalid: resolve   │
+│ - Addressed: resolve │
+└──────────┬───────────┘
+           ▼
+     ┌───────────┐
+     │ 수정 있음? │
+     └─────┬─────┘
+       Yes │
+           ▼
+┌──────────────────────┐
+│ git commit && push   │
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ CI Check 대기        │
+│ gh pr checks --watch │
+└──────────┬───────────┘
+           ▼
+           │ (처음으로 돌아감)
+           └────────────────────────────────────────┐
+                                                    │
+              ┌─────────────────────────────────────┘
+              ▼
+┌─────────────────────────────────────────────────────────┐
+│          Unresolved discussion 재조회                    │
+└─────────────────────────────────────────────────────────┘
+```
+
 ## Examples
 
 ### Example 1: Valid Null Check Feedback

@@ -20,22 +20,22 @@ Agent Skills are folders of instructions, scripts, and resources that AI coding 
 
 ## Installation
 
-Install skills using [add-skill](https://github.com/vercel-labs/add-skill):
+Install skills using [skills](https://skills.sh/):
 
 ```bash
 # Install all skills from this repository
-npx add-skill pitzcarraldo/skills
+npx skills add pitzcarraldo/skills
 
 # Install a specific skill
-npx add-skill pitzcarraldo/skills -s commit
-npx add-skill pitzcarraldo/skills -s rename-branch
-npx add-skill pitzcarraldo/skills -s branch-review
-npx add-skill pitzcarraldo/skills -s pr-review
-npx add-skill pitzcarraldo/skills -s review-and-fix
-npx add-skill pitzcarraldo/skills -s tech-spec-review
-npx add-skill pitzcarraldo/skills -s hwp
-npx add-skill pitzcarraldo/skills -s session-handoff
-npx add-skill pitzcarraldo/skills -s ralph
+npx skills add pitzcarraldo/skills -s commit
+npx skills add pitzcarraldo/skills -s rename-branch
+npx skills add pitzcarraldo/skills -s branch-review
+npx skills add pitzcarraldo/skills -s pr-review
+npx skills add pitzcarraldo/skills -s review-and-fix
+npx skills add pitzcarraldo/skills -s tech-spec-review
+npx skills add pitzcarraldo/skills -s hwp
+npx skills add pitzcarraldo/skills -s session-handoff
+npx skills add pitzcarraldo/skills -s ralph
 ```
 
 ### Supported Agents
@@ -173,7 +173,7 @@ See the [Agent Skills specification](https://github.com/anthropics/agent-skill-s
 - [anthropics/skills](https://github.com/anthropics/skills) — Official Anthropic skills collection
 - [openai/skills](https://github.com/openai/skills) — OpenAI's skills catalog
 - [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) — Vercel's curated skills
-- [vercel-labs/add-skill](https://github.com/vercel-labs/add-skill) — CLI tool for installing skills
+- [skills.sh](https://skills.sh/) — Skills directory and CLI tool for installing skills
 
 ## License
 

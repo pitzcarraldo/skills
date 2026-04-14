@@ -1,0 +1,33 @@
+# Ignore everything
+*
+
+# But not .gitignore itself
+!.gitignore
+
+# Git & PR workflow
+!commit/
+!commit/**
+!rename-branch/
+!rename-branch/**
+!branch-review/
+!branch-review/**
+!pr-review/
+!pr-review/**
+
+# Code review
+!review-and-fix/
+!review-and-fix/**
+!tech-spec-review/
+!tech-spec-review/**
+
+# Utilities
+!hwp/
+!hwp/**
+!session-handoff/
+!session-handoff/**
+!ralph/
+!ralph/**
+
+# Ignore system/cache files
+**/.DS_Store
+**/__pycache__/

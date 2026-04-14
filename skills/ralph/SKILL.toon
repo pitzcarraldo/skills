@@ -1,0 +1,24 @@
+N:ralph
+D:Ralph Loop technique - continuous self-referential AI loops for iterative development. Run the agent in a while-true loop with the same prompt until task completion via completion promise or max iterations.
+G:ralph ralph-loop iterative-loop self-referential completion-promise stop-hook long-running hooks
+U[5]:
+1:Well-defined tasks with clear success criteria that benefit from iterative refinement
+2:Tasks requiring self-correction such as getting tests to pass or fixing bugs
+3:Greenfield projects where the agent can iterate autonomously
+4:Tasks with automatic verification like tests or linters
+5:Any coding task where persistent iteration beats one-shot attempts
+S[4]{n,action,details}:
+1:ralph-loop,Start loop,Create state file and begin iterating with the same prompt until completion or max iterations
+2:cancel-ralph,Cancel loop,Remove the state file and stop the active Ralph loop
+3:help,Show help,Explain the Ralph Loop technique and available commands
+4:monitor,Check status,View current iteration and state from .ralph/ralph-loop.local.md
+R[5]:
+1:The same prompt is fed back every iteration; the agent sees its previous work in files and git history
+2:Completion requires outputting <promise>EXACT_TEXT</promise> tags with the exact completion promise text
+3:State lives in .ralph/ralph-loop.local.md with YAML frontmatter containing iteration and max_iterations and completion_promise
+4:The agent MUST NOT output false promise statements to exit the loop even if it thinks it is stuck
+5:Max iterations is the primary safety mechanism to prevent infinite loops
+E[3]{desc,in,out}:
+1:{Start a ralph loop for building an API,"ralph-loop Build a REST API --completion-promise DONE --max-iterations 20",Agent iterates on building the API and outputs <promise>DONE</promise> when all requirements are met}
+2:{Cancel an active loop,"cancel-ralph",State file removed and loop stops at current iteration}
+3:{Fix a bug iteratively,"ralph-loop Fix the auth bug and make all tests pass --completion-promise FIXED --max-iterations 10",Agent iterates fixing the bug and running tests until all pass then outputs <promise>FIXED</promise>}

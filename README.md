@@ -9,9 +9,14 @@ Agent Skills are folders of instructions, scripts, and resources that AI coding 
 | Skill | Description | Trigger |
 |-------|-------------|---------|
 | [`commit`](./skills/commit) | Conventional commit automation with intelligent type/scope detection | `/commit` |
-| [`pr-review`](./skills/pr-review) | Process unresolved GitHub PR discussions automatically | `/pr-review [url]` |
 | [`rename-branch`](./skills/rename-branch) | Rename branches based on changes following conventions | `/rename-branch` |
+| [`branch-review`](./skills/branch-review) | Compare working branch with origin/main for comprehensive code review | `/branch-review` |
+| [`pr-review`](./skills/pr-review) | Process unresolved GitHub PR review discussions | `/pr-review [url]` |
+| [`review-and-fix`](./skills/review-and-fix) | Autonomous CodeRabbit review-fix loop until clean | `/review-and-fix` |
+| [`tech-spec-review`](./skills/tech-spec-review) | Review tech spec documents against Notion template format | `/tech-spec-review` |
 | [`hwp`](./skills/hwp) | Read Korean HWP/HWPX word processor files | `/hwp [file]` |
+| [`session-handoff`](./skills/session-handoff) | List and resume previous coding agent sessions | `/session-handoff` |
+| [`ralph`](./skills/ralph) | Continuous self-referential AI loop for iterative development | `/ralph` |
 
 ## Installation
 
@@ -23,9 +28,14 @@ npx add-skill pitzcarraldo/skills
 
 # Install a specific skill
 npx add-skill pitzcarraldo/skills -s commit
-npx add-skill pitzcarraldo/skills -s pr-review
 npx add-skill pitzcarraldo/skills -s rename-branch
+npx add-skill pitzcarraldo/skills -s branch-review
+npx add-skill pitzcarraldo/skills -s pr-review
+npx add-skill pitzcarraldo/skills -s review-and-fix
+npx add-skill pitzcarraldo/skills -s tech-spec-review
 npx add-skill pitzcarraldo/skills -s hwp
+npx add-skill pitzcarraldo/skills -s session-handoff
+npx add-skill pitzcarraldo/skills -s ralph
 ```
 
 ### Supported Agents
@@ -41,9 +51,14 @@ These skills work with any agent that follows the [Agent Skills specification](h
 
 Some skills require additional tools:
 
-**pr-review** requires [GitHub CLI](https://cli.github.com/):
+**pr-review**, **branch-review**, **review-and-fix** require [GitHub CLI](https://cli.github.com/):
 ```bash
 brew install gh && gh auth login
+```
+
+**review-and-fix** requires [CodeRabbit CLI](https://github.com/coderabbitai/coderabbit):
+```bash
+npm install -g coderabbit
 ```
 
 **hwp** requires Python libraries:
@@ -60,7 +75,22 @@ Analyzes staged git changes and creates commits following [Conventional Commits]
 - Auto-detects commit type (`feat`, `fix`, `docs`, `refactor`, etc.)
 - Extracts scope from file paths
 - Generates imperative mood descriptions
-- Adds Co-Authored-By footer
+
+### rename-branch
+
+Renames branches to follow conventional naming patterns.
+
+- Analyzes diff against base branch
+- Generates `type/description` format names
+- Handles edge cases (detached HEAD, protected branches)
+- Provides remote update instructions
+
+### branch-review
+
+Compares working branch with origin/main for comprehensive code review.
+
+- Analyzes all changes since branch divergence
+- Reviews code quality, patterns, and potential issues
 
 ### pr-review
 
@@ -72,14 +102,21 @@ Processes unresolved GitHub PR review discussions.
 - Posts clarifying responses for misunderstandings
 - Auto-resolves addressed discussions
 
-### rename-branch
+### review-and-fix
 
-Renames branches to follow conventional naming patterns.
+Autonomous CodeRabbit review-fix loop.
 
-- Analyzes diff against base branch
-- Generates `type/description` format names
-- Handles edge cases (detached HEAD, protected branches)
-- Provides remote update instructions
+- Runs CodeRabbit code review on changes
+- Auto-fixes discovered issues
+- Repeats review-fix cycle until clean
+
+### tech-spec-review
+
+Reviews tech spec documents against a structured template.
+
+- Validates Summary, Background, Goals, Non-Goals, Plan sections
+- Checks for completeness and clarity
+- Provides actionable feedback before team sharing
 
 ### hwp
 
@@ -88,6 +125,22 @@ Reads Korean Hangul Word Processor files (.hwp, .hwpx).
 - Supports legacy HWP 5.x and modern HWPX formats
 - Extracts text with structure preservation
 - Handles tables and complex formatting
+
+### session-handoff
+
+Lists and resumes previous coding agent sessions.
+
+- Discovers past sessions for the current directory
+- Loads full conversation context into current session
+- Supports Claude Code and Codex sessions
+
+### ralph
+
+Continuous self-referential AI loop for iterative development.
+
+- Runs the agent in a while-true loop with the same prompt
+- Continues until task completion
+- Useful for interactive iterative workflows
 
 ## Creating Your Own Skills
 

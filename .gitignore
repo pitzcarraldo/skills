@@ -5,9 +5,3 @@
 !.gitignore
 !README.md
 !skills/
-
-# And not the contents of skills/
-!skills/**
-
-# But ignore system files inside skills
-skills/**/.DS_Store

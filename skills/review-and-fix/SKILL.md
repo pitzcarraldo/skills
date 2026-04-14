@@ -1,11 +1,13 @@
 ---
 name: review-and-fix
-description: CodeRabbit으로 코드 리뷰를 실행하고 발견된 이슈를 자동 수정한 뒤, 다시 리뷰하고 수정하는 과정을 이슈가 없을 때까지 반복하는 자율 루프 스킬. Use when the user says "review and fix", "리뷰하고 수정", "코드래빗 리뷰 반복", "review loop", "자동 리뷰 수정", or wants an autonomous CodeRabbit review-fix cycle until clean.
+description: Pre-push CodeRabbit review-fix loop. Runs local CodeRabbit review, fixes valid issues, and repeats until clean so the branch passes CodeRabbit review on push with no additional comments. Use when the user says "review and fix", "review loop", or wants to ensure the branch is CodeRabbit-clean before pushing.
 ---
 
 # Review and Fix
 
-CodeRabbit CLI로 리뷰 실행 → 이슈 수정 → 재리뷰를 이슈가 없을 때까지 반복하는 자율 루프.
+Ensure the current branch passes CodeRabbit review **before pushing** — so that when the branch is pushed and CodeRabbit runs on the PR, it produces no new review comments.
+
+This skill runs CodeRabbit CLI locally, validates and fixes real issues, and repeats the cycle until the review is clean.
 
 ## Prerequisites
 
@@ -24,9 +26,9 @@ coderabbit --version
 If CLI is still not installed or not on the latest version:
 
 ```
-CodeRabbit CLI가 설치되어 있지 않거나 버전이 낮습니다.
-설치: https://www.coderabbit.ai/cli
-인증: coderabbit auth login
+CodeRabbit CLI is not installed or outdated.
+Install: https://www.coderabbit.ai/cli
+Auth:    coderabbit auth login
 ```
 
 ## Workflow
@@ -54,9 +56,11 @@ coderabbit review --agent [scope flags]
 
 Parse the output. The `--agent` flag produces minimal structured output optimized for AI agents.
 
-### Step 3: Parse and Classify Findings
+### Step 3: Parse, Classify, and Validate Findings
 
-Extract each finding and classify by severity:
+Extract each finding and perform a two-step evaluation:
+
+#### 3.1 Severity Classification
 
 | Severity | Label | Action |
 |----------|-------|--------|
@@ -66,30 +70,59 @@ Extract each finding and classify by severity:
 
 **If no Critical or Warning findings → EXIT with success message.**
 
-Display findings table:
+#### 3.2 Finding Validation
+
+Before fixing any Critical or Warning finding, validate whether it is a true positive:
+
+**Read the actual code** at the reported location with sufficient surrounding context (10+ lines before and after). Then classify:
+
+| Category | Criteria | Action |
+|----------|----------|--------|
+| **Valid** | Issue exists in current code and the suggestion is technically correct | Fix it |
+| **False Positive** | Code already handles the concern, or the tool misread the implementation | Skip and log reason |
+| **Context-Dependent** | Suggestion is technically valid but conflicts with project conventions, intentional design, or surrounding code patterns | Skip and log reason |
+| **Already Addressed** | Issue was fixed in a recent commit or is handled elsewhere in the codebase | Skip and log reason |
+
+**Validation checklist for each finding:**
+
+1. Read the file and understand the actual code at the reported location
+2. Check if the reported issue actually exists in the current code
+3. Verify the suggestion doesn't break existing logic, types, or tests
+4. Check if the pattern is intentional (e.g., project convention, framework requirement)
+5. Look for related code that may already handle the concern (imports, base classes, middleware)
+
+**Common false positive patterns to watch for:**
+- Flagging intentional `any` types that are required by external APIs
+- Suggesting error handling for cases the framework already catches
+- Reporting unused variables that are destructured for side effects
+- Recommending patterns that conflict with the project's established conventions
+- Flagging missing null checks where the type system guarantees non-null
+
+Display findings table with validation results:
 
 ```
 Review Cycle #N - Findings
 
-| # | Severity | Issue | Location |
-|---|----------|-------|----------|
-| 1 | CRITICAL | ... | file.ts:42 |
-| 2 | WARNING  | ... | file.ts:89 |
-| 3 | INFO     | ... | file.ts:12 |
+| # | Severity | Verdict | Issue | Location |
+|---|----------|---------|-------|----------|
+| 1 | CRITICAL | Valid   | ...   | file.ts:42 |
+| 2 | WARNING  | False+  | ...   | file.ts:89 |
+| 3 | WARNING  | Valid   | ...   | file.ts:102 |
+| 4 | INFO     | —       | ...   | file.ts:12 |
 
-Fixing N issue(s) (Critical + Warning)...
+Fixing 2 valid issue(s), skipping 1 false positive...
 ```
 
-### Step 4: Fix Issues
+### Step 4: Fix Valid Issues
 
-For each Critical and Warning finding (Critical first):
+For each validated Critical and Warning finding (Critical first):
 
 1. Read the relevant file and surrounding context
 2. Understand the issue from the CodeRabbit output
 3. Apply the fix using Edit tool
 4. Log: `Fixed: [Issue] at [Location]`
 
-Skip INFO-level findings — log them but do not fix.
+Skip INFO-level findings and false positives — log them but do not fix.
 
 ### Step 5: Verify Fixes
 
@@ -108,8 +141,9 @@ If validation fails, fix the failure before proceeding.
 └──────────┬──────────────────────┘
            ▼
    ┌───────────────┐
-   │ Any Critical   │──No──→ EXIT (success)
-   │ or Warning?    │
+   │ Any valid      │──No──→ EXIT (success)
+   │ Critical or    │
+   │ Warning?       │
    └───────┬───────┘
           Yes
            ▼
@@ -128,7 +162,7 @@ If validation fails, fix the failure before proceeding.
 After fixing, go back to **Step 2** and re-run the review.
 
 **Exit conditions:**
-- No Critical or Warning findings remain
+- No valid Critical or Warning findings remain
 - Max 5 iterations reached (warn user and stop)
 - Same issue appears 2+ times unchanged (skip it, warn user)
 
@@ -142,6 +176,7 @@ Review & Fix Complete
 Iterations: N
 Total issues found: X
   - Fixed: Y
+  - False positives: F
   - Skipped (INFO): Z
   - Persistent (unfixable): W
 
@@ -152,7 +187,8 @@ Files modified:
 
 ## Key Rules
 
-- **Auto-fix Critical and Warning only** — INFO findings are logged but not fixed
+- **Validate before fixing** — read the actual code and confirm the issue is real before applying any change
+- **Auto-fix valid Critical and Warning only** — INFO findings and false positives are logged but not fixed
 - **Re-run review after each fix cycle** — do not assume fixes are correct
 - **Track persistent issues** — if the same issue appears twice after fix attempts, skip it and warn the user
 - **Max 5 iterations** — prevent infinite loops

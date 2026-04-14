@@ -14,7 +14,14 @@ coderabbit --version 2>/dev/null || echo "NOT_INSTALLED"
 coderabbit auth status 2>&1
 ```
 
-If CLI not installed or version < 0.4.0:
+If CLI version is lower than `0.4.0`, update first:
+
+```bash
+coderabbit update
+coderabbit --version
+```
+
+If CLI is still not installed or version is still lower than `0.4.0`:
 
 ```
 CodeRabbit CLI가 설치되어 있지 않거나 버전이 낮습니다.

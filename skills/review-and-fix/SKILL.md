@@ -43,18 +43,26 @@ Check arguments or ask the user:
 
 | Flag | Scope |
 |------|-------|
-| (default) | All changes (`-t all`) |
-| `--uncommitted` | Uncommitted only (`-t uncommitted`) |
-| `--committed` | Committed only (`-t committed`) |
-| `--base <branch>` | Compare against branch (`--base <branch>`) |
+| (default) | All changes vs `origin/main` (`-t all --base origin/main`) |
+| `--uncommitted` | Uncommitted only vs `origin/main` (`-t uncommitted --base origin/main`) |
+| `--committed` | Committed only vs `origin/main` (`-t committed --base origin/main`) |
+| `--base <branch>` | Override base branch (`--base <branch>`) — defaults to `origin/main`, not local `main` |
+
+**Always compare against the remote tracking branch (`origin/main`) instead of the local `main`**, since the local `main` may be stale. If a different base is required, pass `--base <branch>` explicitly.
+
+Before running the review, ensure `origin/main` is up to date:
+
+```bash
+git fetch origin main
+```
 
 ### Step 2: Run CodeRabbit Review
 
 ```bash
-coderabbit review --agent [scope flags]
+coderabbit review --agent --base origin/main [additional scope flags]
 ```
 
-Parse the output. The `--agent` flag produces minimal structured output optimized for AI agents.
+Parse the output. The `--agent` flag produces minimal structured output optimized for AI agents. The `--base origin/main` flag ensures the review compares against the remote tracking branch.
 
 ### Step 3: Parse, Classify, and Validate Findings
 

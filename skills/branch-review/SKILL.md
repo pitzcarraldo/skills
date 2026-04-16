@@ -1,3 +1,8 @@
+---
+name: branch-review
+description: Review the current Git branch against origin/main, including committed, staged, unstaged, and untracked changes. Use when the user asks to review a branch, inspect branch changes before merge, or perform a comprehensive code review of the current working branch.
+---
+
 # Code Review Skill
 
 Compare the current working branch with origin/main and perform a comprehensive code review.

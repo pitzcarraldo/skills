@@ -17,6 +17,7 @@ Agent Skills are folders of instructions, scripts, and resources that AI coding 
 | [`hwp`](./skills/hwp) | Read Korean HWP/HWPX word processor files | `/hwp [file]` |
 | [`session-handoff`](./skills/session-handoff) | List and resume previous coding agent sessions | `/session-handoff` |
 | [`ralph`](./skills/ralph) | Continuous self-referential AI loop for iterative development | `/ralph` |
+| [`standup`](./skills/standup) | Draft daily standups from Slack, GitHub, Linear, and Google Calendar activity | `$standup` |
 
 ## Installation
 
@@ -36,6 +37,7 @@ npx skills add pitzcarraldo/skills -s tech-spec-review
 npx skills add pitzcarraldo/skills -s hwp
 npx skills add pitzcarraldo/skills -s session-handoff
 npx skills add pitzcarraldo/skills -s ralph
+npx skills add pitzcarraldo/skills -s standup
 ```
 
 ### Supported Agents
@@ -141,6 +143,15 @@ Continuous self-referential AI loop for iterative development.
 - Runs the agent in a while-true loop with the same prompt
 - Continues until task completion
 - Useful for interactive iterative workflows
+
+### standup
+
+Drafts daily standups from the current user's connected work activity.
+
+- Checks Slack, GitHub, Linear, and Google Calendar connector availability
+- Uses KST date boundaries and defaults to the previous working day
+- Merges lightweight updates into larger project-level work items
+- Produces a Sup/Slack-ready standup with source coverage notes
 
 ## Creating Your Own Skills
 

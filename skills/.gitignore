@@ -27,6 +27,8 @@
 !session-handoff/**
 !ralph/
 !ralph/**
+!standup/
+!standup/**
 
 # Ignore system/cache files
 **/.DS_Store

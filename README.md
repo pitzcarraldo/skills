@@ -9,6 +9,7 @@ Agent Skills are folders of instructions, scripts, and resources that AI coding 
 | Skill | Description | Trigger |
 |-------|-------------|---------|
 | [`commit`](./skills/commit) | Conventional commit automation with intelligent type/scope detection | `/commit` |
+| [`create-pull-request`](./skills/create-pull-request) | Create GitHub pull requests using repository conventions | `/create-pull-request` |
 | [`rename-branch`](./skills/rename-branch) | Rename branches based on changes following conventions | `/rename-branch` |
 | [`branch-review`](./skills/branch-review) | Compare working branch with origin/main for comprehensive code review | `/branch-review` |
 | [`pr-review`](./skills/pr-review) | Process unresolved GitHub PR review discussions | `/pr-review [url]` |
@@ -29,6 +30,7 @@ npx skills add pitzcarraldo/skills
 
 # Install a specific skill
 npx skills add pitzcarraldo/skills -s commit
+npx skills add pitzcarraldo/skills -s create-pull-request
 npx skills add pitzcarraldo/skills -s rename-branch
 npx skills add pitzcarraldo/skills -s branch-review
 npx skills add pitzcarraldo/skills -s pr-review
